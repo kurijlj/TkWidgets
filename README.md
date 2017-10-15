@@ -1,2 +1,2 @@
 # TkWidgets
-Tkinter widgets, Python 3.6+
+Tkinter widgets, Python 3.6+ (WIP)
