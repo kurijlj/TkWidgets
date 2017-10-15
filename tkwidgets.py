@@ -63,6 +63,7 @@ class DialScaleWidget(tk.Frame):
 	dialtext = {
 		'x': 100,
 		'y': 100,
+		'font': '-size 14',
 		'justify': tk.CENTER}
 	scale = {
 		'from': 0,
@@ -170,6 +171,7 @@ class DialScaleWidget(tk.Frame):
 			DialScaleWidget.dialtext['x'],
 			DialScaleWidget.dialtext['y'],
 			justify=DialScaleWidget.dialtext['justify'],
+			font=DialScaleWidget.dialtext['font'],
 			text=self.dialTextVal)
 
 	def _reDrawDial(self, val):
