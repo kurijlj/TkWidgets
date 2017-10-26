@@ -200,16 +200,41 @@ class DataDisplayGrid(tkt.Grid):
 	"""
 	A table-like display widget
 	"""
-	def __init__(self, parent, num_of_columns: int, headers: list=None, **options):
+	def __init__(self,
+		parent,
+		ncol: int,
+		headers: list=None,
+		rcolor: str=None,
+		**options):
 		"""
 		Initialization of the label grid object
-	
+
 		:param parent: the tk parent element of this frame
-		:param num_of_columns: the number of columns contained of the grid
+		:param ncol: the number of columns contained of the grid
 		:param headers: a list containing the names of the column headers
 		"""
-		super().__init__(parent, num_of_columns, headers, **options)
-	
+
+		self._rcolor = rcolor
+		super().__init__(parent, ncol, headers, **options)
+
+	def _add_label(self, text: str, odd: bool):
+		"""
+		"""
+
+		if odd and self._rcolor:
+			return tk.Label(self,
+				text=text,
+				bg=self._rcolor,
+				relief=tk.GROOVE,
+				padx=self.padding,
+				pady=self.padding)
+
+		return tk.Label(self,
+				text=text,
+				relief=tk.GROOVE,
+				padx=self.padding,
+				pady=self.padding)
+
 	def add_row(self, data: list):
 		"""
 		Add a row of data to the current widget
@@ -224,13 +249,9 @@ class DataDisplayGrid(tkt.Grid):
 	
 		offset = 0 if not self.headers else 1
 		row = list()
+
 		for i, element in enumerate(data):
-
-			if not _isodd(len(self.rows)):
-				label = tk.Label(self, text=str(element), bg='#26d3b6', relief=tk.GROOVE, padx=self.padding, pady=self.padding)
-			else:
-				label = tk.Label(self, text=str(element), relief=tk.GROOVE, padx=self.padding, pady=self.padding)
-
+			label = self._add_label(str(element), _isodd(len(self.rows) + offset))
 			label.grid(row=len(self.rows) + offset, column=i, sticky='E,W')
 			row.append(label)
 	
@@ -244,7 +265,9 @@ class GUIApp(tk.Tk):
 	def __init__(self, initval):
 		tk.Tk.__init__(self)
 		#self.mainWidget = DialScaleWidget(self, initval=initval)
-		self.mainWidget = DataDisplayGrid(self, 3, ['Data1', 'Data2', 'Data3'])
+		#self.mainWidget = DataDisplayGrid(self, 3, ['', 'Data2', 'Data3'], '#26d3b6')
+		#self.mainWidget = DataDisplayGrid(self, 3, ['Data1', 'Data2', 'Data3'])
+		self.mainWidget = DataDisplayGrid(self, ncol=3, rcolor='#26d3b6')
 		self.mainWidget.add_row([1, 2, 3])
 		self.mainWidget.add_row([4, 5, 6])
 		self.mainWidget.add_row([7, 8, 9])
