@@ -30,10 +30,21 @@
 #
 # * <programfilename>.py: created.
 #
+# Nice analogous colors
+# #26d3b6 #2699d3
 #==============================================================================
 
 
 import tkinter as tk
+import tk_tools as tkt
+
+
+def _isodd(n: int):
+	"""
+	"""
+
+	return bool(n & 1)
+
 
 def _numerical_value_in_range(val, lower, upper):
 	"""
@@ -184,10 +195,56 @@ class DialScaleWidget(tk.Frame):
 
 		self._drawDial()
 
+
+class DataDisplayGrid(tkt.Grid):
+	"""
+	A table-like display widget
+	"""
+	def __init__(self, parent, num_of_columns: int, headers: list=None, **options):
+		"""
+		Initialization of the label grid object
+	
+		:param parent: the tk parent element of this frame
+		:param num_of_columns: the number of columns contained of the grid
+		:param headers: a list containing the names of the column headers
+		"""
+		super().__init__(parent, num_of_columns, headers, **options)
+	
+	def add_row(self, data: list):
+		"""
+		Add a row of data to the current widget
+	
+		:param data: a row of data
+		:return: None
+		"""
+		# validation
+		if self.headers:
+			if len(self.headers) != len(data):
+				raise ValueError
+	
+		offset = 0 if not self.headers else 1
+		row = list()
+		for i, element in enumerate(data):
+
+			if not _isodd(len(self.rows)):
+				label = tk.Label(self, text=str(element), bg='#26d3b6', relief=tk.GROOVE, padx=self.padding, pady=self.padding)
+			else:
+				label = tk.Label(self, text=str(element), relief=tk.GROOVE, padx=self.padding, pady=self.padding)
+
+			label.grid(row=len(self.rows) + offset, column=i, sticky='E,W')
+			row.append(label)
+	
+		self.rows.append(row)
+
+
 class GUIApp(tk.Tk):
 	"""
 	"""
 
 	def __init__(self, initval):
 		tk.Tk.__init__(self)
-		self.mainWidget = DialScaleWidget(self, initval=initval)
+		#self.mainWidget = DialScaleWidget(self, initval=initval)
+		self.mainWidget = DataDisplayGrid(self, 3, ['Data1', 'Data2', 'Data3'])
+		self.mainWidget.add_row([1, 2, 3])
+		self.mainWidget.add_row([4, 5, 6])
+		self.mainWidget.add_row([7, 8, 9])
