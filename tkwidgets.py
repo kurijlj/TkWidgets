@@ -36,7 +36,8 @@
 
 
 import tkinter as tk
-import tk_tools as tkt
+#import tk_tools as tkt
+import groups as grps
 
 
 def _isodd(n: int):
@@ -53,6 +54,40 @@ def _numerical_value_in_range(val, lower, upper):
 	if lower <= val and upper >= val: return True
 
 	return False
+
+
+def _plainLabel(parent, text, relief, padding):
+	""" Plain label.
+	"""
+
+	return tk.Label(parent,
+			text=text,
+			relief=relief,
+			padx=padding,
+			pady=padding)
+
+
+def _hlLabel(parent, text, bgcolor, relief, padding):
+	""" Highlighted label.
+	"""
+
+	return tk.Label(parent,
+			text=text,
+			bg=bgcolor,
+			relief=relief,
+			padx=padding,
+			pady=padding)
+
+
+def _rowLabel(parent, text, relief, padding):
+	""" Row label.
+	"""
+
+	return tk.Label(parent,
+			text=text,
+			relief=relief,
+			padx=padding,
+			pady=padding)
 
 
 class DialScaleWidget(tk.Frame):
@@ -196,7 +231,7 @@ class DialScaleWidget(tk.Frame):
 		self._drawDial()
 
 
-class DataDisplayGrid(tkt.Grid):
+class ColoredDataDisplayGrid(grps.Grid):
 	"""
 	A table-like display widget
 	"""
@@ -204,7 +239,8 @@ class DataDisplayGrid(tkt.Grid):
 		parent,
 		ncol: int,
 		headers: list=None,
-		rcolor: str=None,
+		rcolor: str='#26d3b6',
+		relief: str=tk.FLAT,
 		**options):
 		"""
 		Initialization of the label grid object
@@ -215,25 +251,48 @@ class DataDisplayGrid(tkt.Grid):
 		"""
 
 		self._rcolor = rcolor
-		super().__init__(parent, ncol, headers, **options)
+		if None != headers and '' == headers[0]:
+			self._label_col = True
+		else:
+			self._label_col = False
+		super().__init__(parent, ncol, headers, relief, **options)
 
-	def _add_label(self, text: str, odd: bool):
+	def _add_label(self, text: str, odd: bool, col: int):
 		"""
 		"""
 
-		if odd and self._rcolor:
-			return tk.Label(self,
-				text=text,
-				bg=self._rcolor,
-				relief=tk.GROOVE,
-				padx=self.padding,
-				pady=self.padding)
+		if self.headers:
+			if 0 == col and self._label_col:
+				return _rowLabel(self,
+					text=text,
+					relief=self.relief,
+					padding=self.padding)
 
-		return tk.Label(self,
-				text=text,
-				relief=tk.GROOVE,
-				padx=self.padding,
-				pady=self.padding)
+			else:
+				if odd:
+					return _hlLabel(self,
+						text=text,
+						bgcolor=self._rcolor,
+						relief=self.relief,
+						padding=self.padding)
+
+				return _plainLabel(self,
+						text=text,
+						relief=self.relief,
+						padding=self.padding)
+
+		else:
+			if odd:
+				return _hlLabel(self,
+					text=text,
+					bgcolor=self._rcolor,
+					relief=self.relief,
+					padding=self.padding)
+
+			return _plainLabel(self,
+					text=text,
+					relief=self.relief,
+					padding=self.padding)
 
 	def add_row(self, data: list):
 		"""
@@ -251,7 +310,8 @@ class DataDisplayGrid(tkt.Grid):
 		row = list()
 
 		for i, element in enumerate(data):
-			label = self._add_label(str(element), _isodd(len(self.rows) + offset))
+			# Some explanation here. Why len(self.rows) + 1
+			label = self._add_label(str(element), _isodd(len(self.rows) + 1), i)
 			label.grid(row=len(self.rows) + offset, column=i, sticky='E,W')
 			row.append(label)
 	
@@ -265,9 +325,10 @@ class GUIApp(tk.Tk):
 	def __init__(self, initval):
 		tk.Tk.__init__(self)
 		#self.mainWidget = DialScaleWidget(self, initval=initval)
-		#self.mainWidget = DataDisplayGrid(self, 3, ['', 'Data2', 'Data3'], '#26d3b6')
-		#self.mainWidget = DataDisplayGrid(self, 3, ['Data1', 'Data2', 'Data3'])
-		self.mainWidget = DataDisplayGrid(self, ncol=3, rcolor='#26d3b6')
+		#self.mainWidget = ColoredDataDisplayGrid(self, ncol=3, rcolor='#26d3b6')
+		#self.mainWidget = ColoredDataDisplayGrid(self, 3, ['Data1', 'Data2', 'Data3'])
+		#self.mainWidget = ColoredDataDisplayGrid(self, 3, ['Data1', 'Data2', 'Data3'], '#26d3b6')
+		self.mainWidget = ColoredDataDisplayGrid(self, 3, ['', 'Data2', 'Data3'], '#26d3b6')
 		self.mainWidget.add_row([1, 2, 3])
 		self.mainWidget.add_row([4, 5, 6])
 		self.mainWidget.add_row([7, 8, 9])
